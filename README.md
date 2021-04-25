@@ -8,8 +8,6 @@ Using [Phaser.js](https://phaser.io/) for game engine (JavaScript). Used templat
 
 [Patternico](https://patternico.com/) for background, help with repeating images.
 
-[Patternico](https://patternico.com/) for background, help with repeating images.
-
 [SFXR](https://stammel.net/projekte/sfxr/app/) for death sound explosion.
 
 [Incredibox](https://www.incredibox.com/) for music.
