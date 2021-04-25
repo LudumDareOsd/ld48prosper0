@@ -7,6 +7,8 @@ import sndMusic3 from './assets/music3.mp3';
 import sndShortBeat from './assets/shortbeat.mp3';
 import sndDeath from './assets/death.mp3';
 import sndFallingDeath from './assets/fallingdeath.mp3';
+import nuggetImg from './assets/nugget.png';
+import sndNugget from './assets/nugget.mp3';
 
 class LoadScene extends Phaser.Scene
 {
@@ -28,6 +30,9 @@ class LoadScene extends Phaser.Scene
         this.load.audio('shortaudio', sndShortBeat, null);
         this.load.audio('deathaudio', sndDeath, null);
         this.load.audio('deathfallingaudio', sndFallingDeath, null);
+        this.load.audio('nuggetaudio', sndNugget, null);
+
+        this.load.spritesheet('nugget', nuggetImg, { frameWidth: 25, frameHeight: 25 });
     }
       
     create () 

@@ -29,6 +29,7 @@ class GameOverScene extends Phaser.Scene
                 text.setText([
                     'Level: ' + registry.get('level'),
                     'Score: ' + registry.get('score'),
+                    'Nuggets: ' + registry.get('nuggets'),
                     'Hi-Score: ' + localStorage.getItem('ld48hiscore')
                 ]);
                 txt = add.text(210, 1100, 'SPACE or CLICK', { fontFamily: 'Finger Paint', fontSize: 40, color: '#00ff00' });

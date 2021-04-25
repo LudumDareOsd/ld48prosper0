@@ -21,6 +21,14 @@ class GameScene extends Phaser.Scene
         this.sndshortmusic = this.sound.add('shortaudio', { loop: false, volume: 0.6 });
         this.snddeath = this.sound.add('deathaudio', { loop: false, volume: 0.9 });
         this.snddeathfalling = this.sound.add('deathfallingaudio', { loop: false, volume: 0.9 });
+        this.sndnugget = this.sound.add('nuggetaudio', { loop: false, volume: 0.6 });
+
+        this.anims.create({
+            key: 'nugget-spin',
+            frames: this.anims.generateFrameNumbers('nugget', { frames: [ 0, 1, 2, 3 ] }),
+            frameRate: 10,
+            repeat: -1
+        });
     }
       
     create ()
@@ -31,6 +39,8 @@ class GameScene extends Phaser.Scene
         cnt = 0;
         level = 1;
         edgeSpeed = 190;
+        coins = 0;
+        isFading = false;
 
         this.musicGame.stop();
         this.musicGame.play();
@@ -49,6 +59,21 @@ class GameScene extends Phaser.Scene
             key: this.lavaGroup.defaultKey,
             frame: this.lavaGroup.defaultFrame,
             frameQuantity: 0.5 * this.lavaGroup.maxSize,
+            active: false,
+            visible: false
+          });
+
+        //this.nugget1 = this.physics.add.sprite(this.game.config.width / 2, 100, "nugget").setSize(25,25).play('nugget-spin');
+        this.coinGroup = this.physics.add.group({
+            defaultKey: 'nugget',
+            defaultFrame: 0,
+            maxSize: 10,
+            enable: false
+          });
+        this.coinGroup.createMultiple({
+            key: this.coinGroup.defaultKey,
+            frame: this.coinGroup.defaultFrame,
+            frameQuantity: 0.5 * this.coinGroup.maxSize,
             active: false,
             visible: false
           });
@@ -93,6 +118,13 @@ class GameScene extends Phaser.Scene
         leftKey.on('up', this.stopMinerJoe, this);
         rightKey.on('up', this.stopMinerJoe, this);
 
+        this.cameras.main.on('camerafadeoutcomplete', function (camera) {
+
+            camera.fadeIn(6000, 255);
+            isFading = false;
+
+        }, this);
+
         //this.registry.set('lives', 3);
         this.registry.set('level', level);
         let oldHi = localStorage.getItem('ld48hiscore');
@@ -114,20 +146,22 @@ class GameScene extends Phaser.Scene
                 that.text.setText([
                     'Level: 1',
                     'Hi-Score: ' + localStorage.getItem('ld48hiscore'),
+                    'Nuggets: 0',
                     'Score: 0'
                 ]);
             }
         });
 
-        this.setTextHud(level, this.hi, score);
+        this.setTextHud(level, this.hi, score, coins);
 
         firstMove = true;
     }
 
-    setTextHud(levelin, hiin, scorein) {
+    setTextHud(levelin, hiin, scorein, cooinin) {
         this.text.setText([
             'Level: ' + levelin,
             'Hi-Score: ' + hiin,
+            'Nuggets: ' + cooinin,
             'Score: ' + scorein + ' meters'
         ]);
     }
@@ -144,23 +178,26 @@ class GameScene extends Phaser.Scene
                 edgeSpeed = edgeSpeed + (10*level);
                 this.edgeGroup.setVelocityY(-edgeSpeed);
                 this.lavaGroup.setVelocityY(-edgeSpeed);
+                this.coinGroup.setVelocityY(-edgeSpeed);
                 this.musicGame.setRate(1*(1+(level/100)));
             }
 
-            this.setTextHud(level, this.hi, score);
+            this.setTextHud(level, this.hi, score, coins);
         }
 
         if(gameOver == true) {
             this.musicGame.stop();
 
             this.lavaGroup.clear(true, true);
+            this.coinGroup.clear(true, true);
 
             var red = Phaser.Math.Between(50, 255);
             var green = Phaser.Math.Between(50, 255);
             var blue = Phaser.Math.Between(50, 255);
 
             this.registry.set('score', score);
-            this.registry.set('level', level)
+            this.registry.set('level', level);
+            this.registry.set('nuggets', coins);
             let oldHi = localStorage.getItem('ld48hiscore');
             if(oldHi === null || oldHi < score)
                 localStorage.setItem('ld48hiscore', score);
@@ -174,6 +211,28 @@ class GameScene extends Phaser.Scene
                 this.game.sound.stopAll();
                 this.scene.start('GameOverScene');
               }, [], this);
+        }
+
+        if(level == 3 && !gameOver) {
+
+            this.cameras.main.shake(500);
+
+        }
+
+        if(level == 5 && !gameOver && !isFading) {
+            isFading = true;
+
+            this.cameras.main.shake(500);
+
+            var red = Phaser.Math.Between(50, 200);
+            var green = Phaser.Math.Between(50, 200);
+            var blue = Phaser.Math.Between(50, 200);
+
+            this.cameras.main.fade(4000, red, green, blue);
+        }
+
+        if(level == 6 && !gameOver) {
+            this.cameras.main.flash();
         }
 
         this.physics.world.collide(this.edgeGroup, this.minerjoe);
@@ -191,9 +250,40 @@ class GameScene extends Phaser.Scene
             this.minerjoe.angle = -45;
         }, null, this);
 
+        // setting collisions between the player and the coin group
+        this.physics.add.overlap(this.minerjoe, this.coinGroup, function(player, coin){
+            this.sndnugget.play();
+            coins++;
+            score = score + 50;
+            this.setTextHud(level, this.hi, score, coins);
+            this.coinGroup.killAndHide(coin);
+            this.coinGroup.remove(coin);
+            /*this.tweens.add({
+                targets: coin,
+                y: coin.y - 10,
+                alpha: 0,
+                duration: 800,
+                ease: "Cubic.easeOut",
+                callbackScope: this,
+                onComplete: function(){
+                    this.coinGroup.killAndHide(coin);
+                    this.coinGroup.remove(coin);
+                }
+            });*/
+        }, null, this);
+
         this.lavaGroup.getChildren().forEach(function(lava){
             if(lava.getBounds().bottom < 0){
                 lava.disableBody( 
+                    true, // Deactivate sprite (active=false)
+                    true  // Hide sprite (visible=false)
+                  );
+            }
+        }, this);
+
+        this.coinGroup.getChildren().forEach(function(coin){
+            if(coin.getBounds().bottom < 0){
+                coin.disableBody( 
                     true, // Deactivate sprite (active=false)
                     true  // Hide sprite (visible=false)
                   );
@@ -290,6 +380,26 @@ class GameScene extends Phaser.Scene
         edge.x = this.game.config.width / 2 + this.randomValue(hDistanceEdge) * Phaser.Math.RND.sign();
         edge.displayWidth = this.randomValue(edgeLength);
 
+        if(firstMove === false && !gameOver) {
+            if(Phaser.Math.Between(1, 100) <= 25){
+                var coin = this.coinGroup.get();
+
+                if(coin) {
+                    coin.enableBody(
+                        true, // Reset body and game object, at (x, y)
+                        edge.x,
+                        edge.y - 80,
+                        true, // Activate sprite
+                        true  // Show sprite
+                        );
+                                    
+                        coin.setVelocityY(-edgeSpeed);
+                        coin.setOrigin(0.5, 0);
+                        coin.play('nugget-spin');
+                }
+            }
+        }
+
         var thelava = this.lavaGroup.get();
 
         if (!thelava) {
@@ -331,3 +441,5 @@ var minerJoeSpeed = 300;
 var vDistanceEdge =  [150, 300];
 var hDistanceEdge = [0, 250];
 var edgeLength = [50, 150];
+var coins = 0;
+var isFading = false;
