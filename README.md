@@ -1,6 +1,22 @@
 # Ludume Dare 48 by Prosper0
 
-Using Phaser.js for engine.
+[Demo](https://ludumdareosd.github.io/ld48/run_miner_joe/dist/index.html)
+
+Using [Phaser.js](https://phaser.io/) for game engine (JavaScript). Used template for project (see below "Phaser 3 Webpack Project Template").
+
+[Piskel](https://www.piskelapp.com/) for graphics, characters, animations etc.
+
+[Patternico](https://patternico.com/) for background, help with repeating images.
+
+[Patternico](https://patternico.com/) for background, help with repeating images.
+
+[SFXR](https://stammel.net/projekte/sfxr/app/) for death sound explosion.
+
+[Incredibox](https://www.incredibox.com/) for music.
+
+[E-909](http://www.groovemechanics.com/euclid/) for at rythm (didn't use it though but is in the assets).
+
+---
 
 
 # Phaser 3 Webpack Project Template
