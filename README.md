@@ -2,7 +2,9 @@
 
 [Demo](https://ludumdareosd.github.io/ld48/run_miner_joe/dist/index.html)
 
-Using [Phaser.js](https://phaser.io/) for game engine (JavaScript). Used template for project (see below "Phaser 3 Webpack Project Template").
+[LD48](https://ldjam.com/events/ludum-dare/48/run-miner-joe)
+
+[Phaser.js](https://phaser.io/) for game framework (JavaScript). Used their template for the project (see below "Phaser 3 Webpack Project Template").
 
 [Piskel](https://www.piskelapp.com/) for graphics, characters, animations etc.
 
@@ -13,6 +15,8 @@ Using [Phaser.js](https://phaser.io/) for game engine (JavaScript). Used templat
 [Incredibox](https://www.incredibox.com/) for music.
 
 [E-909](http://www.groovemechanics.com/euclid/) for at rythm (didn't use it though but is in the assets).
+
+[Audacity](https://www.audacityteam.org/) for all that sound editing.
 
 ---
 
